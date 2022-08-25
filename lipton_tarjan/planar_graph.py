@@ -1,5 +1,5 @@
 import numpy as np
-from numba import jitclass
+from numba.experimental import jitclass
 from numba.types import void, int32, float32
 from .planar_graph_edges import PlanarGraphEdges, planar_graph_edges_nb_type
 from . import numba_utils
