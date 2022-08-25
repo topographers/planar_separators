@@ -1,5 +1,5 @@
 import numpy as np
-from numba import jitclass
+from numba.experimental import jitclass
 from numba.types import int32
 from . import numba_utils
 import datetime
