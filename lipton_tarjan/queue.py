@@ -1,5 +1,6 @@
 import numpy as np
-from numba import jitclass, jit
+from numba import jit
+from numba.experimental import jitclass
 from numba.types import List, int32
 
 
