@@ -1,20 +1,16 @@
 import numpy as np
-from numba import jit
-from numba.types import void, Tuple, boolean, int32, float32
 from . import planar_graph_constructor, utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
-from .planar_graph_edges import PlanarGraphEdges, planar_graph_edges_nb_type
+from .planar_graph import PlanarGraph
+from .planar_graph_edges import PlanarGraphEdges
 
 
-@jit(void(int32, planar_graph_edges_nb_type, int32, int32[:]), nopython=True)
 def _set_adjacent_vertex_level(vertex, edges, incident_edge_index, levels):
 
     adjacent_vertex = edges.get_opposite_vertex(incident_edge_index, vertex)
     levels[adjacent_vertex] = levels[vertex] + 1
 
-_set_levels = utils.make_traverse_graph_via_bfs(_set_adjacent_vertex_level, int32[:])
+_set_levels = utils.make_traverse_graph_via_bfs(_set_adjacent_vertex_level)
 
-@jit(int32[:](int32, planar_graph_nb_type), nopython=True)
 def construct_bfs_levels(root, graph):
 
     levels = utils.repeat_int(-1, graph.size)
@@ -26,14 +22,12 @@ def construct_bfs_levels(root, graph):
 
     return levels
 
-@jit(void(int32, planar_graph_edges_nb_type, int32, boolean[:]), nopython=True)
 def _add_edge_to_tree(vertex, edges, incident_edge_index, tree_edges_mask):
 
     tree_edges_mask[incident_edge_index] = True
 
-_construct_tree_edges_mask = utils.make_traverse_graph_via_bfs(_add_edge_to_tree, boolean[:])
+_construct_tree_edges_mask = utils.make_traverse_graph_via_bfs(_add_edge_to_tree)
 
-@jit(boolean[:](int32, planar_graph_nb_type), nopython=True)
 def construct_bfs_tree_edges_mask(root, graph):
 
     tree_edges_mask = utils.repeat_bool(False, graph.edges_count)
@@ -44,7 +38,6 @@ def construct_bfs_tree_edges_mask(root, graph):
 
     return tree_edges_mask
 
-@jit(Tuple((int32[:], int32[:]))(planar_graph_nb_type, int32[:], int32, boolean[:]), nopython=True)
 def _get_ordered_bfs_subtree_adjacencies_and_incidence_indices(graph, bfs_levels,
         subtree_max_level, bfs_tree_edges_mask):
 
@@ -105,8 +98,6 @@ def _get_ordered_bfs_subtree_adjacencies_and_incidence_indices(graph, bfs_levels
 
     return ordered_bfs_subtree_adjacencies, ordered_bfs_subtree_incidence_indices
 
-@jit(Tuple((int32, int32[:], int32[:], planar_graph_nb_type))(planar_graph_nb_type, int32[:], int32,
-        boolean[:]), nopython=True)
 def collapse_bfs_subtree(graph, bfs_levels, subtree_max_level, bfs_tree_edges_mask):
 
     ordered_bfs_subtree_adjacencies, ordered_bfs_subtree_incidence_indices = \
@@ -178,7 +169,6 @@ def collapse_bfs_subtree(graph, bfs_levels, subtree_max_level, bfs_tree_edges_ma
             PlanarGraph(new_new_graph_vertex_costs, new_new_graph_incident_edge_example_indices,
             new_graph.edges)
 
-@jit(void(int32, planar_graph_edges_nb_type, int32, float32[:]), nopython=True)
 def _update_parent_total_descendants_costs(vertex, edges, parent_edge_index,
         total_descendants_costs):
 
@@ -186,10 +176,8 @@ def _update_parent_total_descendants_costs(vertex, edges, parent_edge_index,
     total_descendants_costs[parent_vertex] += total_descendants_costs[vertex]
 
 _set_total_descendants_costs = \
-        utils.make_traverse_graph_via_post_order_dfs(_update_parent_total_descendants_costs,
-        float32[:])
+        utils.make_traverse_graph_via_post_order_dfs(_update_parent_total_descendants_costs)
 
-@jit(Tuple((int32[:], float32[:]))(planar_graph_nb_type, int32, boolean[:]), nopython=True)
 def record_bfs_tree_parent_edge_indices_and_total_descendants_costs(graph, bfs_tree_root,
         bfs_tree_edges_mask):
 
