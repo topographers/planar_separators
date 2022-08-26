@@ -1,12 +1,8 @@
 import numpy as np
-from numba import jit
-from numba.types import void, Tuple, int32, boolean, float32
 from . import utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
+from .planar_graph import PlanarGraph
 
 
-@jit(Tuple((boolean[:], boolean[:], int32[:]))(planar_graph_nb_type, int32[:], int32),
-        nopython=True)
 def get_tree_cycle_masks_and_next_edge_indices_in_path_to_cycle(graph, parent_edge_indices,
         non_tree_edge_index):
 
@@ -48,7 +44,6 @@ def get_tree_cycle_masks_and_next_edge_indices_in_path_to_cycle(graph, parent_ed
 
     return cycle_vertices_mask, cycle_edges_mask, next_edge_indices_in_path_to_cycle
 
-@jit(int32(int32, planar_graph_nb_type, boolean[:]), nopython=True)
 def _get_cycle_vertex(edge_index, graph, cycle_vertices_mask):
 
     edge_vertex1 = graph.edges.vertex1[edge_index]
@@ -59,8 +54,6 @@ def _get_cycle_vertex(edge_index, graph, cycle_vertices_mask):
 
     return edge_vertex2
 
-@jit(void(planar_graph_nb_type, boolean[:], float32[:], int32[:], int32, int32, boolean[:],
-        boolean[:], boolean), nopython=True)
 def iterate_tree_adjacency_costs_on_tree_cycle_side(graph, tree_edges_mask,
         total_descendants_costs, parent_edge_indices, start_vertex_on_cycle,
         start_edge_index_on_cycle, cycle_vertices_mask, cycle_edges_mask, add_end_marker):
@@ -81,8 +74,6 @@ def iterate_tree_adjacency_costs_on_tree_cycle_side(graph, tree_edges_mask,
     if add_end_marker:
         yield -1.0
 
-@jit(Tuple((float32, int32, int32))(float32[:], boolean[:], int32, int32, int32, int32, int32,
-        boolean[:], boolean[:], float32), nopython=True)
 def _shrink_cycle_if_one_of_internal_edges_is_on_tree(vertex_costs, tree_edges_mask,
         first_internal_edge_index, second_internal_edge_index, non_tree_edge_primary_vertex,
         non_tree_edge_secondary_vertex, internal_vertex, cycle_vertices_mask, cycle_edges_mask,
@@ -100,8 +91,6 @@ def _shrink_cycle_if_one_of_internal_edges_is_on_tree(vertex_costs, tree_edges_m
         cycle_edges_mask[second_internal_edge_index] = True
         return cost_inside_cycle, first_internal_edge_index, non_tree_edge_primary_vertex
 
-@jit(float32(planar_graph_nb_type, int32[:], boolean[:], boolean[:], int32[:], int32),
-        nopython=True)
 def _add_tree_path_to_cycle_masks_and_return_its_cost(graph, parent_edge_indices,
         cycle_vertices_mask, cycle_edges_mask, next_edge_indices_in_path_to_cycle,
         internal_vertex):
@@ -126,8 +115,6 @@ def _add_tree_path_to_cycle_masks_and_return_its_cost(graph, parent_edge_indices
 
     return tree_path_cost
 
-@jit(Tuple((float32, int32, int32))(planar_graph_nb_type, boolean[:], float32[:], int32[:],
-        boolean[:], boolean[:], int32[:], float32, int32, int32), nopython=True)
 def shrink_cycle(graph, tree_edges_mask, total_descendants_costs, parent_edge_indices,
         cycle_vertices_mask, cycle_edges_mask, next_edge_indices_in_path_to_cycle,
         cost_inside_cycle, non_tree_edge_index, non_tree_edge_primary_vertex):
@@ -192,7 +179,6 @@ def shrink_cycle(graph, tree_edges_mask, total_descendants_costs, parent_edge_in
 
     return cost_inside_second_internal_cycle, second_internal_edge_index, internal_vertex
 
-@jit(void(planar_graph_nb_type, boolean[:], int32, int32, boolean[:], boolean[:]), nopython=True)
 def iterate_vertices_on_cycle_side(graph, tree_edges_mask, start_vertex_on_cycle,
         start_edge_index_on_cycle, cycle_vertices_mask, cycle_edges_mask):
 
