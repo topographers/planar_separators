@@ -1,13 +1,8 @@
 import numpy as np
-from numba import jit
-from numba import void, int32, boolean, float32
-from .planar_graph_edges import planar_graph_edges_nb_type
-from .planar_graph import planar_graph_nb_type
 from .queue import Queue
 from .separation_class import SeparationClass
 
 
-@jit(int32[:](int32, int32), nopython=True)
 def repeat_int(value, count):
 
     array = np.zeros(count, dtype=np.int32)
@@ -15,7 +10,6 @@ def repeat_int(value, count):
 
     return array
 
-@jit(boolean[:](boolean, int32), nopython=True)
 def repeat_bool(value, count):
 
     array = np.zeros(count, dtype=np.bool_)
@@ -23,7 +17,6 @@ def repeat_bool(value, count):
 
     return array
 
-@jit(float32[:](float32, int32), nopython=True)
 def repeat_float(value, count): 
 
     array = np.zeros(count, dtype=np.float32)
@@ -31,12 +24,11 @@ def repeat_float(value, count):
 
     return array
 
-def make_traverse_graph_via_bfs(callback, result_nb_type):
+def make_traverse_graph_via_bfs(callback):
     """
         callback(vertex, incident_edge, result) - callback function
     """
 
-    @jit(void(int32, planar_graph_nb_type, boolean[:], result_nb_type), nopython=True)
     def traverse_graph_via_bfs(start_vertex, graph, used_vertex_flags, result):
 
         queue = Queue()
@@ -60,15 +52,13 @@ def make_traverse_graph_via_bfs(callback, result_nb_type):
 
     return traverse_graph_via_bfs
 
-@jit(void(int32, planar_graph_edges_nb_type, int32, int32[:]), nopython=True)
 def _color_adjacent_vertex(vertex, edges, incident_edge_index, colors):
 
     adjacent_vertex = edges.get_opposite_vertex(incident_edge_index, vertex)
     colors[adjacent_vertex] = colors[vertex]
 
-_mark_connected_component = make_traverse_graph_via_bfs(_color_adjacent_vertex, int32[:])
+_mark_connected_component = make_traverse_graph_via_bfs(_color_adjacent_vertex)
 
-@jit(int32[:](planar_graph_nb_type), nopython=True)
 def color_connected_components(graph):
 
     colors = repeat_int(-1, graph.size)
@@ -85,9 +75,8 @@ def color_connected_components(graph):
 
     return colors
 
-def make_traverse_graph_via_post_order_dfs(callback, result_nb_type):
+def make_traverse_graph_via_post_order_dfs(callback):
 
-    @jit(int32[:](int32, planar_graph_nb_type, boolean[:], result_nb_type), nopython=True)
     def traverse_graph_via_post_order_dfs(start_vertex, graph, edges_mask, result):
 
         parent_edge_indices = repeat_int(-1, graph.size)
@@ -131,7 +120,6 @@ def make_traverse_graph_via_post_order_dfs(callback, result_nb_type):
 
     return traverse_graph_via_post_order_dfs
 
-@jit(void(planar_graph_nb_type, boolean[:], boolean[:], int32, int32), nopython=True)
 def iterate_subgraph_incidence_indices(graph, subgraph_edges_mask, possible_incidences_mask,
         start_vertex_in_subgraph, start_edge_index_in_subgraph):
 
