@@ -1,9 +1,7 @@
 import numpy as np
-from numba import jit
-from numba.types import Tuple, int32, boolean
 from . import utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
-from .planar_graph_edges import PlanarGraphEdges, planar_graph_edges_nb_type
+from .planar_graph import PlanarGraph
+from .planar_graph_edges import PlanarGraphEdges
 
 
 class PlanarGraphConstructor:
@@ -79,8 +77,6 @@ class PlanarGraphConstructor:
         return _construct_from_ordered_adjacencies(ordered_adjacencies)
 
 
-@jit(Tuple((int32[:], int32[:], planar_graph_nb_type))(planar_graph_nb_type, boolean[:],
-        boolean[:]), nopython=True)
 def construct_subgraph(graph, subgraph_vertices_mask, subgraph_edges_mask):
     """
     Linear algorithm for subgraph construction.
@@ -169,7 +165,6 @@ def construct_subgraph(graph, subgraph_vertices_mask, subgraph_edges_mask):
     return new_vertices_mapping, new_edge_indices_mapping, PlanarGraph(vertex_costs,
             incident_edge_example_indices, edges)
 
-@jit(planar_graph_nb_type(planar_graph_nb_type), nopython=True)
 def clone_graph(graph):
     """
     Graph cloning.
