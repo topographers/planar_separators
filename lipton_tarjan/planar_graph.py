@@ -1,14 +1,7 @@
 import numpy as np
-from numba.experimental import jitclass
-from numba.types import void, int32, float32
-from .planar_graph_edges import PlanarGraphEdges, planar_graph_edges_nb_type
-from . import numba_utils
+from .planar_graph_edges import PlanarGraphEdges
 
 
-@jitclass([('_vertex_costs', float32[:]),
-        ('_incident_edge_example_indices', int32[:]),
-        ('_edges', planar_graph_edges_nb_type),
-        ('_size', int32)])
 class PlanarGraph:
     """
     Planar graph representation, encoded by a list of edges (`PlanarGraphEdges` instance), an array
@@ -86,6 +79,3 @@ class PlanarGraph:
 
         for edge_index in self.get_incident_edge_indices(vertex):
             yield self._edges.get_opposite_vertex(edge_index, vertex)
-
-
-planar_graph_nb_type = numba_utils.get_numba_type(PlanarGraph)
