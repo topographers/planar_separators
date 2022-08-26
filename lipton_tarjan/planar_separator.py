@@ -1,9 +1,7 @@
 import numpy as np
-from numba import jit
-from numba.types import int32, boolean, float32
 import math
 from . import planar_graph_constructor, bfs_tree, tree_cycles, triangulator, separation_class, utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
+from .planar_graph import PlanarGraph
 from .separation_class import SeparationClass
 
 
@@ -31,7 +29,6 @@ class PlanarSeparator:
         return np.array([SeparationClass(value) for value in mark_separation(graph)], dtype=object)
 
 
-@jit(int32[:](int32[:]), nopython=True)
 def _fill_undefined_with_second_part(separation):
 
     new_separation = separation.copy()
@@ -39,7 +36,6 @@ def _fill_undefined_with_second_part(separation):
 
     return new_separation
 
-@jit(int32[:](int32, int32[:], int32[:]), nopython=True)
 def _map_levels(new_vertices_count, new_vertices_mapping, bfs_levels):
 
     new_vertex_exists_mask = (new_vertices_mapping != -1)
@@ -51,7 +47,6 @@ def _map_levels(new_vertices_count, new_vertices_mapping, bfs_levels):
 
     return new_bfs_levels
 
-@jit(int32[:](int32[:], int32[:]), nopython=True)
 def _get_new_vertices_mappings_composition(new_vertices_mapping1, new_vertices_mapping2):
 
     new_vertex_exists_mask = (new_vertices_mapping1 != -1)
@@ -63,7 +58,6 @@ def _get_new_vertices_mappings_composition(new_vertices_mapping1, new_vertices_m
 
     return composition
 
-@jit(boolean[:](int32, int32[:], boolean[:]), nopython=True)
 def _map_edges_mask(new_edges_count, new_edge_indices_mapping, edges_mask):
 
     new_edge_exists_mask = (new_edge_indices_mapping != -1)
@@ -75,7 +69,6 @@ def _map_edges_mask(new_edges_count, new_edge_indices_mapping, edges_mask):
 
     return new_edges_mask
 
-@jit(int32[:](int32[:], int32[:]), nopython=True)
 def _get_new_parent_edge_indices(parent_edge_indices, new_edge_indices_mapping):
 
     parent_edge_exists_mask = (parent_edge_indices != -1)
@@ -87,7 +80,6 @@ def _get_new_parent_edge_indices(parent_edge_indices, new_edge_indices_mapping):
 
     return new_parent_edge_indices
 
-@jit(int32[:](int32[:], float32[:]), nopython=True)
 def _mark_separation_when_components_less_than_one_third(connected_component_indices,
         connected_component_costs):
 
@@ -106,7 +98,6 @@ def _mark_separation_when_components_less_than_one_third(connected_component_ind
 
     return separation
 
-@jit(int32[:](int32[:], int32), nopython=True)
 def _mark_separation_when_components_less_than_two_thirds(connected_component_indices,
         max_component_index):
 
@@ -116,7 +107,6 @@ def _mark_separation_when_components_less_than_two_thirds(connected_component_in
 
     return separation
 
-@jit(int32(float32[:]), nopython=True)
 def _find_level_one(bfs_level_costs):
 
     level_one = 0
@@ -128,7 +118,6 @@ def _find_level_one(bfs_level_costs):
 
     return level_one
 
-@jit(int32(int32[:], int32, int32), nopython=True)
 def _find_level_zero(bfs_level_sizes, level_one, vertices_count_up_to_level_one):
 
     level_zero = 0
@@ -141,7 +130,6 @@ def _find_level_zero(bfs_level_sizes, level_one, vertices_count_up_to_level_one)
 
     return level_zero
 
-@jit(int32(int32[:], int32, int32), nopython=True)
 def _find_level_two(bfs_level_sizes, level_one, vertices_count_behind_level_one):
 
     threshold = 2*np.sqrt(vertices_count_behind_level_one)
@@ -152,7 +140,6 @@ def _find_level_two(bfs_level_sizes, level_one, vertices_count_behind_level_one)
 
     return len(bfs_level_sizes)
 
-@jit(int32[:](int32[:], float32[:], int32, int32, float32), nopython=True)
 def _mark_separation_if_cost_between_levels_is_less_than_two_thirds(bfs_levels,
         bfs_level_costs, level_zero, level_two, cost_between_levels):
 
@@ -185,7 +172,6 @@ def _mark_separation_if_cost_between_levels_is_less_than_two_thirds(bfs_levels,
 
     return separation
 
-@jit(int32[:](float32[:], int32[:]), nopython=True)
 def _swap_separation_parts_if_cost_of_first_part_is_smaller(vertex_costs, separation):
 
     first_part_cost = vertex_costs[separation == separation_class.FIRST_PART].sum()
@@ -200,7 +186,6 @@ def _swap_separation_parts_if_cost_of_first_part_is_smaller(vertex_costs, separa
 
     return new_separation
 
-@jit(int32[:](planar_graph_nb_type, int32), nopython=True)
 def _mark_separation_of_graph_with_small_radius(graph, center_vertex):
 
     # triangulator only works when there are at least three vertices
@@ -285,7 +270,6 @@ def _mark_separation_of_graph_with_small_radius(graph, center_vertex):
 
     return separation
 
-@jit(int32[:](planar_graph_nb_type, int32[:], int32), nopython=True)
 def _mark_separation_for_one_connected_component(graph, connected_component_indices,
         component_index):
 
@@ -366,7 +350,6 @@ def _mark_separation_for_one_connected_component(graph, connected_component_indi
 
     return separation
 
-@jit(int32[:](planar_graph_nb_type), nopython=True)
 def mark_separation(graph):
     """
     Separate the graph into three parts - FIRST_PART(0), SEPARATOR(2) and SECOND_PART(1).
