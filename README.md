@@ -1,3 +1,7 @@
+# Edit
+
+I removed numba, here's a working example for the code: https://colab.research.google.com/drive/1-Xq1FBkuhShE8LXVgXbL68GgfkXg_vDG?usp=sharing
+
 # lipton_tarjan
 
 Python implementation of Lipton-Tarjan algorithm for planar separation
