@@ -1,10 +1,6 @@
 import numpy as np
-from numba import jit
-from numba.experimental import jitclass
-from numba.types import List, int32
 
 
-@jitclass([('_left_stack', List(int32)), ('_right_stack', List(int32))])
 class Queue:
 
     def __init__(self):
