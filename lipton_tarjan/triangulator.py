@@ -1,8 +1,6 @@
 import numpy as np
-from numba import jit
-from numba.types import void, Tuple, int32, boolean
 from . import planar_graph_constructor, utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
+from .planar_graph import PlanarGraph
 from .planar_graph_edges import PlanarGraphEdges
 
 
@@ -41,7 +39,6 @@ class Triangulator:
         return triangulate(graph)
 
 
-@jit(void(planar_graph_nb_type), nopython=True)
 def _add_edges_to_connect_graph_components(graph):
 
     component_indices = utils.color_connected_components(graph)
@@ -73,7 +70,6 @@ def _add_edges_to_connect_graph_components(graph):
                 graph.edges.set_next_edge(vertex_edge_index, vertex, edge_index)
                 graph.edges.set_next_edge(edge_index, vertex, vertex_next_edge_index)
 
-@jit(Tuple((int32[:], int32[:]))(planar_graph_nb_type, int32, int32, int32), nopython=True)
 def _get_consequtive_face_vertices_and_edge_indices(graph, start_vertex, start_edge_index,
         vertices_in_sequence):
 
@@ -88,7 +84,6 @@ def _get_consequtive_face_vertices_and_edge_indices(graph, start_vertex, start_e
 
     return np.array(vertices), np.array(edge_indices)
 
-@jit(void(planar_graph_nb_type, int32, int32, int32, int32, int32), nopython=True)
 def _insert_edge(graph, triangle_vertex1, triangle_vertex2, triangle_vertex3, triangle_edge_index1,
         triangle_edge_index2):
 
@@ -107,7 +102,6 @@ def _insert_edge(graph, triangle_vertex1, triangle_vertex2, triangle_vertex3, tr
 
     graph.edges.set_next_edge(new_edge_index, triangle_vertex1, triangle_edge_index1)
 
-@jit(Tuple((int32[:], planar_graph_nb_type))(planar_graph_nb_type), nopython=True)
 def triangulate(graph):
     """
     Linear algorithm for planar graph triangulation.
