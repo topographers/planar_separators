@@ -1,8 +1,6 @@
 import numpy as np
-from numba import jit
-from numba.types import void, int32, boolean, float32
 from . import planar_graph_constructor, triangulator, utils
-from .planar_graph import PlanarGraph, planar_graph_nb_type
+from .planar_graph import PlanarGraph
 from .planar_graph_edges import PlanarGraphEdges
 
 
@@ -75,7 +73,6 @@ class PlanarGraphGenerator:
         return _generate_random_graph(size, density, random_vertex_costs)
 
 
-@jit(planar_graph_nb_type(int32, boolean), nopython=True)
 def _generate_random_tree(size, random_vertex_costs):
 
     if size < 2:
@@ -119,7 +116,6 @@ def _generate_random_tree(size, random_vertex_costs):
 
     return PlanarGraph(vertex_costs, incident_edge_example_indices, edges)
 
-@jit(planar_graph_nb_type(planar_graph_nb_type), nopython=True)
 def _remove_double_edges(graph):
 
     is_adjacent_vertex_mask = utils.repeat_bool(False, graph.size)
@@ -148,7 +144,6 @@ def _remove_double_edges(graph):
 
     return graph
 
-@jit(planar_graph_nb_type(planar_graph_nb_type), nopython=True)
 def _normalize_vertex_costs(graph):
 
     vertex_costs = graph.vertex_costs.copy()
@@ -157,7 +152,6 @@ def _normalize_vertex_costs(graph):
 
     return PlanarGraph(vertex_costs, graph.incident_edge_example_indices, graph.edges)
 
-@jit(planar_graph_nb_type(int32, float32, boolean), nopython=True)
 def _generate_random_graph(size, density, random_vertex_costs):
 
     tree = _generate_random_tree(size, random_vertex_costs)
